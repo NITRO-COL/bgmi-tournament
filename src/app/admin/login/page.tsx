@@ -14,9 +14,14 @@ export default function AdminLogin() {
 
   useEffect(() => {
     // If user is already logged in, redirect to dashboard
-    if (isAdmin()) {
-      router.push("/admin/dashboard");
-    }
+    // Using a small delay to ensure router is ready
+    const timer = setTimeout(() => {
+      if (isAdmin()) {
+        router.push("/admin/dashboard");
+      }
+    }, 100);
+    
+    return () => clearTimeout(timer);
   }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -38,12 +43,11 @@ export default function AdminLogin() {
 
       if (response.ok) {
         // Get token from cookie and save to localStorage
+        // Optimized version with regex for faster parsing
         if (typeof window !== 'undefined') {
-          const cookies = document.cookie.split(';');
-          const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('adminToken='));
-          if (tokenCookie) {
-            const token = tokenCookie.split('=')[1].trim();
-            localStorage.setItem('adminToken', token);
+          const tokenMatch = document.cookie.match(/adminToken=([^;]*)/);
+          if (tokenMatch && tokenMatch[1]) {
+            localStorage.setItem('adminToken', tokenMatch[1]);
           }
         }
         // Redirect to dashboard

@@ -1,21 +1,32 @@
 // Client-side admin authentication utility
+// Optimized version with early returns and reduced operations
+import { authCache } from './authCache';
+
 export const isAdmin = () => {
-  if (typeof window !== 'undefined') {
-    // First check localStorage for persisted token
-    const storedToken = localStorage.getItem('adminToken');
-    if (storedToken) {
-      return true;
-    }
-    
-    // Fallback to cookie check
-    const cookies = document.cookie.split(';');
-    return cookies.some(cookie => cookie.trim().startsWith('adminToken='));
+  // Check cache first
+  const cachedStatus = authCache.getCachedAuthStatus();
+  if (cachedStatus !== null) {
+    return cachedStatus;
   }
-  return false;
+  
+  // Early return if window is not available
+  if (typeof window === 'undefined') return false;
+  
+  // Check localStorage first (faster than cookie parsing)
+  const isLoggedIn = !!localStorage.getItem('adminToken') || 
+    (document.cookie.indexOf('adminToken=') !== -1);
+  
+  // Cache the result
+  authCache.setAuthStatus(isLoggedIn);
+  
+  return isLoggedIn;
 };
 
 export const loginAdmin = (token: string) => {
   if (typeof window !== 'undefined') {
+    // Clear auth cache
+    authCache.clearCache();
+    
     // Set admin token in localStorage for persistence
     localStorage.setItem('adminToken', token);
     
@@ -26,6 +37,9 @@ export const loginAdmin = (token: string) => {
 
 export const logoutAdmin = () => {
   if (typeof window !== 'undefined') {
+    // Clear auth cache
+    authCache.clearCache();
+    
     // Remove admin token from localStorage
     localStorage.removeItem('adminToken');
     

@@ -4,6 +4,19 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Image from "next/image";
 
+// Preload key resources
+export const metadata: Metadata = {
+  title: "Battleground Arena Tournament Organizer",
+  description: "Join the ultimate battleground tournament and compete for exciting prizes",
+  icons: {
+    icon: '/bgmi-logo.png',
+  },
+  // Add performance optimizations
+  other: {
+    "google-site-verification": "your-verification-code-here",
+  }
+};
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -14,13 +27,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Battleground Arena Tournament Organizer",
-  description: "Join the ultimate battleground tournament and compete for exciting prizes",
-  icons: {
-    icon: '/bgmi-logo.png',
-  },
-};
+
 
 export default function RootLayout({
   children,
@@ -46,6 +53,7 @@ export default function RootLayout({
                   width={32} 
                   height={32} 
                   className="rounded-full"
+                  priority={true}
                 />
                 <span className="text-xl font-bold text-blue-100">Battleground Arena</span>
               </div>

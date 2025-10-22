@@ -2,12 +2,33 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useEffect } from "react";
-import { useAdminAuth } from '@/hooks/useAdminAuth';
+import { useState, useCallback, useEffect } from "react";
+import { isAdmin } from '@/lib/adminAuth';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isLoggedIn: isAdminUser } = useAdminAuth();
+  const [isAdminUser, setIsAdminUser] = useState(false);
+
+  // Memoized function to check admin status
+  const checkAdminStatus = useCallback(() => {
+    try {
+      const adminStatus = isAdmin();
+      setIsAdminUser(adminStatus);
+    } catch (error) {
+      console.error('Error checking admin status:', error);
+      setIsAdminUser(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Delay admin status check to prioritize critical rendering
+    const timer = setTimeout(() => {
+      checkAdminStatus();
+    }, 0);
+    
+    return () => clearTimeout(timer);
+  }, [checkAdminStatus]);
+
   const adminLink = isAdminUser ? '/admin/dashboard' : '/admin/login';
 
   return (
@@ -21,6 +42,7 @@ export default function Navbar() {
               width={60} 
               height={60} 
               className="rounded-full"
+              priority={true}
             />
           </Link>
         </div>
