@@ -8,8 +8,9 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-t
 export async function verifyAdminToken() {
   try {
     // Get cookies
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const token = cookieStore.get('adminToken')?.value;
+
     
     if (!token) {
       return { success: false, error: 'No token provided' };
